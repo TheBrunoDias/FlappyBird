@@ -1,4 +1,5 @@
 # FlappyBird
-Link da vídeo aula #01: Criando um Flappy Bird do Zero no JavaScript!
-https://www.youtube.com/watch?v=jOAU81jdi-c
+Commit atualizando a queda o bird
+[*Jogo com JavaScript #02: Troca de Telas e Gravidade*](https://www.youtube.com/watch?v=6ubysIIjarI)
+
 
