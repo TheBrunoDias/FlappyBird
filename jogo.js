@@ -1,6 +1,9 @@
 const sprites = new Image();
 sprites.src = './sprites.png';
 
+const som_HIT = new Audio();
+som_HIT.src = './efeitos/hit.wav'
+
 const canvas = document.querySelector('canvas');
 const contexto = canvas.getContext('2d');
 
@@ -63,30 +66,59 @@ const chao = {
     },
 };
 
-//desenhar o flappy bird
-const flappyBird = {
-    spriteX: 0,
-    spriteY: 0,
-    largura: 33,
-    altura: 24,
-    x: 10,
-    y: 50,
-    gravidade: 0.25,
-    velocidade: 0,
-    atualiza() {
-        flappyBird.velocidade = flappyBird.velocidade + flappyBird.gravidade;
-        console.log(flappyBird.velocidade)
-        flappyBird.y = flappyBird.y + flappyBird.velocidade; //para fazer o desenho 1px para baixo a cada loop
-    },
-    desenha() {
-        contexto.drawImage(
-            sprites,
-            flappyBird.spriteX, flappyBird.spriteY, // posição inicial  na sprite
-            flappyBird.largura, flappyBird.altura, // Tamanho do recorte na sprite
-            flappyBird.x, flappyBird.y, //posição que ira printar na tela;
-            flappyBird.largura, flappyBird.altura, // tamanho que irá aparecer na tela
-        );
+function fazColisao(flappyBird, chao) {
+    const flappyBirdY = flappyBird.y + flappyBird.altura;
+    const chaoY = chao.y;
+
+    if (flappyBirdY >= chaoY) {
+        return true
+    } else {
+        return false
     }
+}
+
+
+function criaFlappyBird() {
+    const flappyBird = {
+        spriteX: 0,
+        spriteY: 0,
+        largura: 33,
+        altura: 24,
+        x: 10,
+        y: 50,
+        pulo: 4.6,
+        pula() {
+            console.log("Pulando!");
+            flappyBird.velocidade = - flappyBird.pulo;
+        },
+        gravidade: 0.25,
+        velocidade: 0,
+        atualiza() {
+            if (fazColisao(flappyBird, chao)) {
+                console.log('Fez colisão');
+                som_HIT.play();
+        
+                setTimeout(() => {
+                    mudaParaTela(Telas.INICIO);
+                    
+                }, 500);
+                return;
+            }
+            flappyBird.velocidade = flappyBird.velocidade + flappyBird.gravidade;
+            flappyBird.y = flappyBird.y + flappyBird.velocidade; //para fazer o desenho 1px para baixo a cada loop
+        },
+        desenha() {
+            contexto.drawImage(
+                sprites,
+                flappyBird.spriteX, flappyBird.spriteY, // posição inicial  na sprite
+                flappyBird.largura, flappyBird.altura, // Tamanho do recorte na sprite
+                flappyBird.x, flappyBird.y, //posição que ira printar na tela;
+                flappyBird.largura, flappyBird.altura, // tamanho que irá aparecer na tela
+            );
+        }
+    }
+
+    return flappyBird;
 }
 
 /// [mensagemGetReady]
@@ -113,15 +145,28 @@ const mensagemGetReady = {
 //[Telas]
 //
 
+const globais = {};
+let telaAtiva = {};
+function mudaParaTela(novaTela) {
+    telaAtiva = novaTela;
+
+    if (telaAtiva.inicializa) {
+        telaAtiva.inicializa();
+    }
+}
+
 const Telas = {
     INICIO: {
+        inicializa() {
+            globais.flappyBird = criaFlappyBird();
+        },
         desenha() {
             planoDeFundo.desenha();
             chao.desenha();
-            flappyBird.desenha();
+            globais.flappyBird.desenha();
             mensagemGetReady.desenha();
         },
-        click(){
+        click() {
             mudaParaTela(Telas.JOGO);
         },
         atualiza() {
@@ -131,19 +176,18 @@ const Telas = {
     }
 };
 
-let telaAtiva = {};
-function mudaParaTela(novaTela) {
-    telaAtiva = novaTela;
-}
 
 Telas.JOGO = {
     desenha() {
         planoDeFundo.desenha();
         chao.desenha();
-        flappyBird.desenha();
+        globais.flappyBird.desenha();
+    },
+    click() {
+        globais.flappyBird.pula();
     },
     atualiza() {
-        flappyBird.atualiza();
+        globais.flappyBird.atualiza();
     }
 }
 
@@ -155,8 +199,8 @@ function loop() {
     requestAnimationFrame(loop); //comando para chamar a função novamente, entrando no loop
 }
 
-window.addEventListener('click',function (){
-    if(telaAtiva.click){
+window.addEventListener('click', function () {
+    if (telaAtiva.click) {
         telaAtiva.click();
     }
 })
