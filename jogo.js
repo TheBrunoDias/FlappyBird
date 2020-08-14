@@ -62,7 +62,7 @@ function criaChao() {
         atualiza() {
             //deixar o chão infinito
             const movimentoDoChao = 1;
-            const repeteEm = chao.largura/2;
+            const repeteEm = chao.largura / 2;
             const movimentacao = chao.x - movimentoDoChao;
 
             chao.x = movimentacao % repeteEm;
@@ -132,16 +132,16 @@ function criaFlappyBird() {
             flappyBird.y = flappyBird.y + flappyBird.velocidade; //para fazer o desenho 1px para baixo a cada loop
         },
         movimentos: [
-            {spriteX: 0, spriteY: 0,},//asa para cima
-            {spriteX: 0, spriteY: 26,},//asa no meio
-            {spriteX: 0, spriteY: 52,}, //asa para baixo
-            {spriteX: 0, spriteY: 26,},//asa no meio
+            { spriteX: 0, spriteY: 0, },//asa para cima
+            { spriteX: 0, spriteY: 26, },//asa no meio
+            { spriteX: 0, spriteY: 52, }, //asa para baixo
+            { spriteX: 0, spriteY: 26, },//asa no meio
         ],
         frameAtual: 0,
-        atualizaFrameAtual(){
+        atualizaFrameAtual() {
             const intervaloDeFrames = 10;
             const passouOIntervao = frames % intervaloDeFrames === 0;
-            if(passouOIntervao){
+            if (passouOIntervao) {
                 const basedoIncremento = 1;
                 const incremento = basedoIncremento + flappyBird.frameAtual;
                 const baseRepeticao = flappyBird.movimentos.length;
@@ -197,13 +197,13 @@ function criaCanos() {
         },
         espaco: 100,
         desenha() {
-            canos.pares.forEach(function(par){
+            canos.pares.forEach(function (par) {
                 const yRandom = par.y;
                 const espacamentoEntreCanos = 90;
-    
+
                 const canoCeuX = par.x
                 const canoCeuY = yRandom
-                
+
                 //[Cano do Céu]
                 contexto.drawImage(
                     sprites,
@@ -212,7 +212,7 @@ function criaCanos() {
                     canoCeuX, canoCeuY,
                     canos.largura, canos.altura,
                 )
-    
+
                 const canoChaoX = par.x
                 const canoChaoY = canos.altura + espacamentoEntreCanos + yRandom;
                 //[Cano do Chão]
@@ -236,16 +236,16 @@ function criaCanos() {
 
         },
 
-        temColisaoComOFlappyBird(par){
+        temColisaoComOFlappyBird(par) {
             const cabecaDoFlappy = globais.flappyBird.y;
             const peDoFlappy = globais.flappyBird.y + globais.flappyBird.altura;
 
-            if(globais.flappyBird.x >= par.x){
-                if(cabecaDoFlappy <= par.canoCeu.y){
+            if (globais.flappyBird.x >= par.x) {
+                if (cabecaDoFlappy <= par.canoCeu.y) {
                     return true;
                 }
 
-                if(peDoFlappy >= par.canoChao.y){
+                if (peDoFlappy >= par.canoChao.y) {
                     return true;
                 }
             }
@@ -255,34 +255,31 @@ function criaCanos() {
 
         pares: [],
 
-        atualiza(){
+        atualiza() {
             const passou100Frames = frames % 100 === 0;
-            if(passou100Frames){
+            if (passou100Frames) {
                 canos.pares.push({
                     x: canvas.width,
                     y: -150 * (Math.random() + 1),
                 })
             }
 
-            canos.pares.forEach(function(par){
-                par.x = par.x -2;
+            canos.pares.forEach(function (par) {
+                par.x = par.x - 2;
 
-                if(canos.temColisaoComOFlappyBird(par)){
+                if (canos.temColisaoComOFlappyBird(par)) {
                     som_HIT.play();
                     mudaParaTela(Telas.INICIO)
-                    pontos = 0;
-                    const telaPontos = document.getElementById('pontos');
-                    telaPontos.innerHTML = (pontos);
                 }
 
-                if(par.x + canos.largura <= 0){
+                if (par.x + canos.largura <= 0) {
                     canos.pares.shift(); //deletar o cano após sair da tela
                     pontos++;
                     som_ponto.play();
                     const telaPontos = document.getElementById('pontos');
                     telaPontos.innerHTML = (pontos);
                 }
-            })     
+            })
         }
     }
     return canos;
@@ -319,6 +316,9 @@ const Telas = {
         },
         click() {
             mudaParaTela(Telas.JOGO);
+            pontos = 0;
+            const telaPontos = document.getElementById('pontos');
+            telaPontos.innerHTML = (pontos);
         },
         atualiza() {
             globais.chao.atualiza();
@@ -349,7 +349,7 @@ function loop() {
     telaAtiva.desenha();
     telaAtiva.atualiza();
 
-    frames = frames +1;
+    frames = frames + 1;
     requestAnimationFrame(loop); //comando para chamar a função novamente, entrando no loop
 }
 
