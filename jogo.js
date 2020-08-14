@@ -1,8 +1,10 @@
 const sprites = new Image();
 sprites.src = './sprites.png';
 
-let frames = 0;
-let pontos = 0;
+const canvas = document.querySelector('canvas');
+const contexto = canvas.getContext('2d');
+
+//Sons do jogo
 const som_HIT = new Audio();
 som_HIT.src = './efeitos/hit.wav'
 
@@ -15,9 +17,8 @@ som_caiu.src = './efeitos/caiu.wav'
 const som_ponto = new Audio();
 som_ponto.src = './efeitos/ponto.wav'
 
-const canvas = document.querySelector('canvas');
-const contexto = canvas.getContext('2d');
-
+let frames = 0;
+let pontos = 0;
 
 // [Plano de Fundo]
 const planoDeFundo = {
@@ -30,7 +31,8 @@ const planoDeFundo = {
     desenha() {
         contexto.fillStyle = '#70c5ce'; //cor do fundo
         contexto.fillRect(0, 0, canvas.width, canvas.height) //tamanho que vai cobrir o fundo
-
+        
+        //desenhar o fundo
         contexto.drawImage(
             sprites,
             planoDeFundo.spriteX, planoDeFundo.spriteY,
@@ -38,7 +40,7 @@ const planoDeFundo = {
             planoDeFundo.x, planoDeFundo.y,
             planoDeFundo.largura, planoDeFundo.altura,
         );
-
+        //desenhar o fundo novamente para cobrir toda o canvas
         contexto.drawImage(
             sprites,
             planoDeFundo.spriteX, planoDeFundo.spriteY,
@@ -50,7 +52,6 @@ const planoDeFundo = {
 };
 
 // [Chao]
-
 function criaChao() {
     const chao = {
         spriteX: 0,
@@ -88,7 +89,8 @@ function criaChao() {
     };
     return chao;
 }
-
+ 
+//[Colisão com o Chão]
 function fazColisao(flappyBird, chao) {
     const flappyBirdY = flappyBird.y + flappyBird.altura;
     const chaoY = chao.y;
@@ -100,7 +102,7 @@ function fazColisao(flappyBird, chao) {
     }
 }
 
-
+//Desenhar e reiniciar o FlappyBird sempre que perder
 function criaFlappyBird() {
     const flappyBird = {
         spriteX: 0,
@@ -110,13 +112,18 @@ function criaFlappyBird() {
         x: 10,
         y: 50,
         pulo: 4.6,
+        
+        //[Animação de pular]
         pula() {
             console.log("Pulando!");
             flappyBird.velocidade = - flappyBird.pulo;
             som_pulo.play();
         },
+
         gravidade: 0.25,
         velocidade: 0,
+
+        //Verificar se fez colisão com o chão
         atualiza() {
             if (fazColisao(flappyBird, globais.chao)) {
                 console.log('Fez colisão');
@@ -131,6 +138,8 @@ function criaFlappyBird() {
             flappyBird.velocidade = flappyBird.velocidade + flappyBird.gravidade;
             flappyBird.y = flappyBird.y + flappyBird.velocidade; //para fazer o desenho 1px para baixo a cada loop
         },
+
+        //Animação de bater asa
         movimentos: [
             { spriteX: 0, spriteY: 0, },//asa para cima
             { spriteX: 0, spriteY: 26, },//asa no meio
@@ -148,6 +157,8 @@ function criaFlappyBird() {
                 flappyBird.frameAtual = incremento % baseRepeticao;
             }
         },
+
+        //desenhar o flappy bird
         desenha() {
             flappyBird.atualizaFrameAtual();
             const { spriteX, spriteY } = flappyBird.movimentos[flappyBird.frameAtual]
@@ -164,7 +175,7 @@ function criaFlappyBird() {
     return flappyBird;
 }
 
-/// [mensagemGetReady]
+/// [Mensagem de Inicar]
 const mensagemGetReady = {
     sX: 134,
     sY: 0,
@@ -183,6 +194,7 @@ const mensagemGetReady = {
     }
 }
 
+// [criar, movimentar e colisão com os canos]
 function criaCanos() {
     const canos = {
         largura: 52,
@@ -195,7 +207,11 @@ function criaCanos() {
             spriteX: 52,
             spriteY: 169,
         },
-        espaco: 100,
+
+        //espaço entre os canos
+        espaco: 80, 
+
+        //desenhar o cano em cima e em baixo
         desenha() {
             canos.pares.forEach(function (par) {
                 const yRandom = par.y;
@@ -236,6 +252,7 @@ function criaCanos() {
 
         },
 
+        //veriricar se houve a colisão com o flappy
         temColisaoComOFlappyBird(par) {
             const cabecaDoFlappy = globais.flappyBird.y;
             const peDoFlappy = globais.flappyBird.y + globais.flappyBird.altura;
@@ -253,8 +270,10 @@ function criaCanos() {
 
         },
 
+        //vetor que vai receber os canos desenhados na tela
         pares: [],
 
+        //desenhar os canos em tamanhos aleatorios
         atualiza() {
             const passou100Frames = frames % 100 === 0;
             if (passou100Frames) {
@@ -267,11 +286,13 @@ function criaCanos() {
             canos.pares.forEach(function (par) {
                 par.x = par.x - 2;
 
+                //se houve a colisão volta pra tela inicial
                 if (canos.temColisaoComOFlappyBird(par)) {
                     som_HIT.play();
                     mudaParaTela(Telas.INICIO)
                 }
 
+                //se passou o cano soma 1 ponto e destrói o cano
                 if (par.x + canos.largura <= 0) {
                     canos.pares.shift(); //deletar o cano após sair da tela
                     pontos++;
@@ -286,12 +307,13 @@ function criaCanos() {
 }
 
 
-//
+
 //[Telas]
-//
 
 const globais = {};
 let telaAtiva = {};
+
+//função para mudar de tela
 function mudaParaTela(novaTela) {
     telaAtiva = novaTela;
 
@@ -301,6 +323,8 @@ function mudaParaTela(novaTela) {
 }
 
 const Telas = {
+
+    //tela inicial
     INICIO: {
         inicializa() {
             globais.flappyBird = criaFlappyBird();
@@ -326,7 +350,7 @@ const Telas = {
     },
 };
 
-
+//tela do jogo que só vai entrar após o primeiro clique na tela
 Telas.JOGO = {
     desenha() {
         planoDeFundo.desenha();
@@ -353,6 +377,7 @@ function loop() {
     requestAnimationFrame(loop); //comando para chamar a função novamente, entrando no loop
 }
 
+//função que monitora os cliques na tela
 window.addEventListener('click', function () {
     if (telaAtiva.click) {
         telaAtiva.click();
