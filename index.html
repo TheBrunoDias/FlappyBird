@@ -8,17 +8,32 @@
 </head>
 
 <body>
-    <h1>
+    <h1>Flappy Bird</h1>
+    <p>
+        Feito por Bruno Dias <br>
+    </p>
+    <a href="https://github.com/TheBrunoDias/FlappyBird"> GitHub do Projeto</a>
+    <h2>
         Pontos: <span id="pontos">0</span>
-    </h1>
+    </h2>
     <canvas id="game-canvas" width="320" height="480"></canvas>
     <style>
         body {
-            min-height: 100vh;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
+        }
+        a {
+          text-decoration: none;
+          font-size: 2vw;
+        }
+        h2{
+            display: flex;
+            justify-content: center;
+            background-color: #70c5ce;
+            width: 320px;
+            border-radius: 10px;
         }
 
         canvas {
